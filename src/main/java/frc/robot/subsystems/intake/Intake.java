@@ -1,0 +1,94 @@
+package frc.robot.subsystems.intake;
+
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
+import frc.robot.subsystems.SysIdSubsystem;
+import java.util.List;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
+
+public class Intake extends SubsystemBase implements SysIdSubsystem.SysIdSingleSubsystem {
+  public final IntakeIO io;
+  public final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+  private final SysIdRoutine sysIdRoutine;
+
+  private final Alert IntakeDisconnectedAlert =
+      new Alert("Intake motor disconnected", AlertType.kWarning);
+
+  public Intake(IntakeIO io) {
+    super();
+    this.io = io;
+    this.sysIdRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("Intake/SysIdState", state.toString())),
+            new Mechanism(io::intakeOpenLoop, null, this));
+  }
+
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.processInputs("Intake", inputs);
+
+    IntakeDisconnectedAlert.set(!inputs.intakeConnected && Constants.CURRENT_MODE != Mode.SIM);
+  }
+
+  /**
+   * Sets the intake to the given velocity in degrees per second.
+   *
+   * <p>This is a non-blocking call and will not wait until the intake is at the requested
+   * velocity.
+   *
+   * @param velocity The velocity to set the intake to in degrees per second.
+   * @return A command that sets the intake to the given velocity.
+   */
+  public Command setIntakeVelocity(Supplier<AngularVelocity> velocity) {
+    return new InstantCommand(
+            () -> {
+              io.setIntakeVelocity(velocity.get());
+            },
+            this)
+        .withName("Set Intake Velocity");
+  }
+
+  @Override
+  public SysIdRoutine getSysIdRoutine() {
+    return sysIdRoutine;
+  }
+
+  public Command reset(Direction direction) {
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> {
+                  io.intakeOpenLoop(Volts.of(0));
+                },
+                this),
+            Commands.idle(this)
+                .until(
+                    () ->
+                        inputs.intakeVelocityRadPerSec.isNear(
+                                RotationsPerSecond.ofBaseUnits(0), IntakeConstants.RESET_TOLERANCE)),
+            Commands.runOnce(
+                () -> {
+                  io.intakeOpenLoop(Volts.of(0));
+                },
+                this))
+        .withName("Reset Intake");
+  }
+}

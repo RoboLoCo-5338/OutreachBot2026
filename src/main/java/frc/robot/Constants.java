@@ -1,36 +1,37 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.InchesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import edu.wpi.first.units.MomentOfInertiaUnit;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 
-/**
- * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running on a roboRIO. Change
- * the value of "simMode" to switch between "sim" (physics sim) and "replay" (log replay from a file).
- */
-public final class Constants {
-    public static final Mode simMode = Mode.SIM;
-    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+public class Constants {
+  public static final Mode SIM_MODE = Mode.SIM;
+  public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : SIM_MODE;
+  public static final Distance ROBOT_LENGTH = Inches.of(33.250000); // TODO: FIX VALUES
+  public static final Distance FLOOR_TO_MECHANISM = Inches.of(8); // TODO: FIX VALUES
+  public static final boolean TUNING = true;
 
-    public static enum Mode {
-        /** Running on a real robot. */
-        REAL,
+  public static final Distance FIELD_WIDTH = Meters.of(16.4592); // TODO: FIX VALUES
+  public static final Distance FIELD_HEIGHT = Meters.of(8.2296); // TODO: FIX VALUES
 
-        /** Running a physics simulator. */
-        SIM,
+  public static final MomentOfInertiaUnit PoundSquareInch =
+      Pounds.mult(InchesPerSecond).mult(Inches).per(RadiansPerSecond);
+  public static final MomentOfInertiaUnit PoundSquareInches = PoundSquareInch;
 
-        /** Replaying from a log file. */
-        REPLAY
-    }
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
+  }
 }
