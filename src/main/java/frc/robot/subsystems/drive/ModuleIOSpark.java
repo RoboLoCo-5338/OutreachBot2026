@@ -71,7 +71,7 @@ public class ModuleIOSpark implements ModuleIO {
             case 2 -> backLeftZeroRotation;
             case 3 -> backRightZeroRotation;
             default -> new Rotation2d();};
-        driveSpark = new SparkFlex(
+        driveSpark = new SparkMax(
                 switch (module) {
                     case 0 -> frontLeftDriveCanId;
                     case 1 -> frontRightDriveCanId;
