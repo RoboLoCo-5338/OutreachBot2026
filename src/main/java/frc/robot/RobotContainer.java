@@ -29,6 +29,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSpark;
 import frc.robot.subsystems.vision.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -45,6 +49,7 @@ public class RobotContainer {
     // Subsystems
     private final Drive drive;
     private final Vision vision;
+    private final Shooter shooter;
     private SwerveDriveSimulation driveSimulation = null;
 
     // Controller
@@ -71,6 +76,7 @@ public class RobotContainer {
                         new VisionIOLimelight(VisionConstants.camera0Name, drive::getRotation),
                         new VisionIOLimelight(VisionConstants.camera1Name, drive::getRotation));
 
+                shooter = new Shooter(new ShooterIOSpark(1), new ShooterIOSpark(2));
                 break;
             case SIM:
                 // create a maple-sim swerve drive simulation instance
@@ -94,6 +100,7 @@ public class RobotContainer {
                         new VisionIOPhotonVisionSim(
                                 camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose));
 
+                shooter = new Shooter(new ShooterIOSim(1), new ShooterIOSim(2));
                 break;
             default:
                 // Replayed robot, disable IO implementations
@@ -106,6 +113,7 @@ public class RobotContainer {
                         (pose) -> {});
                 vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
 
+                shooter = new Shooter(new ShooterIO(), new ShooterIO());
                 break;
         }
 
@@ -122,6 +130,7 @@ public class RobotContainer {
         autoChooser.addOption("Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption("Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+        shooter.addRoutinesToChooser(autoChooser);
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -154,6 +163,7 @@ public class RobotContainer {
                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
         controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
+        controller.b().whileTrue(shooter.setShooterVelocity(() -> RadiansPerSecond.of(1))).whileFalse(shooter.setShooterVelocity(() -> RadiansPerSecond.of(0)));
         // Example Coral Placement Code
         // TODO: delete these code for your own project
         if (Constants.CURRENT_MODE == Constants.Mode.SIM) {

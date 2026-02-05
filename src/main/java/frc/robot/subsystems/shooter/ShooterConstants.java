@@ -11,13 +11,13 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 public final class ShooterConstants {
   public static final int SHOOTER_MOTOR_1_ID = 11;
   public static final int SHOOTER_MOTOR_2_ID = 12;
-  public static final double SHOOTER_MOTOR_VELOCITY_KP = 1.0716E-06; // TODO: TUNE VALUES
+  public static final double SHOOTER_MOTOR_VELOCITY_KP = 2.7403E-43; // TODO: TUNE VALUES
   public static final double SHOOTER_MOTOR_VELOCITY_KI = 0; // TODO: TUNE VALUES
   public static final double SHOOTER_MOTOR_VELOCITY_KD = 0; // TODO: TUNE VALUES
-  public static final double SHOOTER_MOTOR_KV = 0.0084407; // TODO: TUNE VALUES
-  public static final double SHOOTER_MOTOR_KS = 0.0017394; // TODO: TUNE VALUES
+  public static final double SHOOTER_MOTOR_KV = 0.020001; // TODO: TUNE VALUES
+  public static final double SHOOTER_MOTOR_KS = 0.2058; // TODO: TUNE VALUES
   public static final Current SHOOTER_MOTOR_CURRENT_LIMIT = Amps.of(60);
-  public static final double GEARING = 1.0;
+  public static final double GEARING = 2 * Math.PI;
 
   public static final AngularVelocity SHOOTER_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
   public static final AngularVelocity SHOOTER_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES

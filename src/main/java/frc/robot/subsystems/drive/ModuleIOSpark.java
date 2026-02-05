@@ -100,6 +100,7 @@ public class ModuleIOSpark implements ModuleIO {
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(driveMotorCurrentLimit)
                 .voltageCompensation(12.0);
+                if(module == 0 || module == 2) driveConfig.inverted(true);
         driveConfig
                 .encoder
                 .positionConversionFactor(driveEncoderPositionFactor)
@@ -141,6 +142,7 @@ public class ModuleIOSpark implements ModuleIO {
                 .positionConversionFactor(turnEncoderPositionFactor)
                 .velocityConversionFactor(turnEncoderVelocityFactor)
                 .averageDepth(2);
+                // .zeroOffset(DriveConstants.moduleOffsets[module]);
         turnConfig
                 .closedLoop
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
