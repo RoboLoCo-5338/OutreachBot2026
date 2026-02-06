@@ -15,7 +15,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.subsystems.vision.VisionConstants.*;
-import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,9 +29,17 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOSpark;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSpark;
+import frc.robot.subsystems.arm.*;
+import frc.robot.subsystems.indexer.*;
 import frc.robot.subsystems.vision.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -51,6 +58,10 @@ public class RobotContainer {
     private final Vision vision;
     private final Shooter shooter;
     private SwerveDriveSimulation driveSimulation = null;
+    private final Intake intake;
+    private final Indexer indexer;
+    private final Arm arm;
+    
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -101,6 +112,9 @@ public class RobotContainer {
                                 camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose));
 
                 shooter = new Shooter(new ShooterIOSim(1), new ShooterIOSim(2));
+                intake = new Intake(new IntakeIOSim(1));
+                indexer = new Indexer(new IndexerIOSim(1));
+                arm = new Arm(new ArmIOSim(1));
                 break;
             default:
                 // Replayed robot, disable IO implementations
@@ -114,6 +128,9 @@ public class RobotContainer {
                 vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
 
                 shooter = new Shooter(new ShooterIO(), new ShooterIO());
+                intake = new Intake(new IntakeIO());
+                indexer = new Indexer(new IndexerIO());
+                arm = new Arm(new ArmIO(), new ArmIO());
                 break;
         }
 
@@ -146,6 +163,7 @@ public class RobotContainer {
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
         // Lock to 0° when A button is held
+        
         controller
                 .a()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
@@ -187,7 +205,34 @@ public class RobotContainer {
                             Meters.of(1.35),
                             MetersPerSecond.of(1.5),
                             Degrees.of(-60)))));
+            controller
+                .rightTrigger()
+                .whileTrue(
+                        shooter.setShooterVelocity(
+                                ShooterConstants.SHOOTER_FORWARD_VELOCITY
+                        )
+                );
+            controller
+                .leftTrigger()
+                .whileTrue(
+                        intake.setIntakeVelocity(
+                                IntakeConstants.INTAKE_FORWARD_VELOCITY
+                        )
+                );
+             controller
+        .rightBumper()
+        .whileTrue(
+            indexer.setIndexerVelocity(
+                () -> IndexerConstants.INDEXER_INTAKE_VELOCITY))
+        .onFalse(indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_NO_VELOCITY));
+        controller
+        .leftBumper()
+        .whileTrue(
+            indexer.setIndexerVelocity(
+                () -> IndexerConstants.INDEXER_OUTTAKE_VELOCITY)) 
+        .onFalse(indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_NO_VELOCITY));  
         }
+
     }
 
     /**

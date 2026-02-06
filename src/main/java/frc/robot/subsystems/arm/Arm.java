@@ -53,7 +53,11 @@ public class Arm extends SubsystemBase implements SysIdSubsystem {
             new Mechanism(io2::armOpenLoop, null, this));
   }
 
-  @Override
+  public Arm(ArmIOSim armIOSim) {
+    //TODO Auto-generated constructor stub
+}
+
+@Override
   public void periodic() {
     io1.updateInputs(inputs1);
     Logger.processInputs("Arm1", inputs1);
