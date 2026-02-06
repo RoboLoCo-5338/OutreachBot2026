@@ -19,13 +19,17 @@ public final class ArmConstants {
   public static final Current ARM_MOTOR_CURRENT_LIMIT = Amps.of(60);
   public static final double GEARING = 2 * Math.PI;
 
-  public static final AngularVelocity ARM_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
-  public static final AngularVelocity ARM_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
+  public static final AngularVelocity ARM_REVERSE_VELOCITY =
+      RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
+  public static final AngularVelocity ARM_FORWARD_VELOCITY =
+      RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
   public static final AngularVelocity ARM_NO_VELOCITY = RotationsPerSecond.of(0.0);
 
-  public static final AngularVelocity RESET_TOLERANCE = RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
+  public static final AngularVelocity RESET_TOLERANCE =
+      RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
 
   public static final class ArmSimConstants {
-    public static final MomentOfInertia ARM_MOI = PoundSquareInches.of(0.729044); // TODO: TUNE VALUES
+    public static final MomentOfInertia ARM_MOI =
+        PoundSquareInches.of(0.729044); // TODO: TUNE VALUES
   }
 }

@@ -2,21 +2,18 @@ package frc.robot.subsystems.arm;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-// import au.grapplerobotics.LaserCan;
-// import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -39,8 +36,7 @@ public class ArmIOSpark extends ArmIO {
   SparkMax armMotor;
 
   SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(
-          ArmConstants.ARM_MOTOR_KS, ArmConstants.ARM_MOTOR_KV);
+      new SimpleMotorFeedforward(ArmConstants.ARM_MOTOR_KS, ArmConstants.ARM_MOTOR_KV);
   // LaserCan laserCan = new LaserCan(ArmConstants.LASERCAN_ID);
   private final LoggedTunableNumber kP =
       new LoggedTunableNumber("Arm kP", ArmConstants.ARM_MOTOR_VELOCITY_KP);
@@ -56,9 +52,7 @@ public class ArmIOSpark extends ArmIO {
   public ArmIOSpark(int armNum) {
     armMotor =
         new SparkMax(
-            armNum == 1
-                ? ArmConstants.ARM_MOTOR_1_ID
-                : ArmConstants.ARM_MOTOR_2_ID,
+            armNum == 1 ? ArmConstants.ARM_MOTOR_1_ID : ArmConstants.ARM_MOTOR_2_ID,
             MotorType.kBrushless);
     armEncoder = armMotor.getEncoder();
 
@@ -67,9 +61,7 @@ public class ArmIOSpark extends ArmIO {
         5,
         () ->
             armMotor.configure(
-                getArmConfig(),
-                ResetMode.kResetSafeParameters,
-                PersistMode.kPersistParameters));
+                getArmConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
     armClosedLoopController = armMotor.getClosedLoopController();
     // try {
     //   laserCan.setRangingMode(LaserCan.RangingMode.SHORT);
@@ -125,21 +117,15 @@ public class ArmIOSpark extends ArmIO {
     sparkUtil.sparkStickyFault = false;
 
     sparkUtil.ifOk(
-        armMotor,
-        armEncoder::getPosition,
-        (value) -> inputs.armPositionRads = Rotations.of(value));
+        armMotor, armEncoder::getPosition, (value) -> inputs.armPositionRads = Rotations.of(value));
     sparkUtil.ifOk(
-        armMotor,
-        armEncoder::getVelocity,
-        (value) -> inputs.armVelocityRadPerSec = RPM.of(value));
+        armMotor, armEncoder::getVelocity, (value) -> inputs.armVelocityRadPerSec = RPM.of(value));
     sparkUtil.ifOk(
         armMotor,
         new DoubleSupplier[] {armMotor::getAppliedOutput, armMotor::getBusVoltage},
         (values) -> inputs.armAppliedVolts = Volts.of(values[0] * values[1]));
     sparkUtil.ifOk(
-        armMotor,
-        armMotor::getOutputCurrent,
-        (value) -> inputs.armCurrentAmps = Amps.of(value));
+        armMotor, armMotor::getOutputCurrent, (value) -> inputs.armCurrentAmps = Amps.of(value));
     sparkUtil.ifOk(
         armMotor,
         armMotor::getMotorTemperature,

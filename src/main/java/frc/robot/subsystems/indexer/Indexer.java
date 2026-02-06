@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.SysIdSubsystem;
-import java.util.List;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -52,8 +51,7 @@ public class Indexer extends SubsystemBase implements SysIdSubsystem.SysIdSingle
   /**
    * Sets the intake to the given velocity in degrees per second.
    *
-   * <p>This is a non-blocking call and will not wait until the intake is at the requested
-   * velocity.
+   * <p>This is a non-blocking call and will not wait until the intake is at the requested velocity.
    *
    * @param velocity The velocity to set the intake to in degrees per second.
    * @return A command that sets the intake to the given velocity.
@@ -83,7 +81,7 @@ public class Indexer extends SubsystemBase implements SysIdSubsystem.SysIdSingle
                 .until(
                     () ->
                         inputs.indexerVelocityRadPerSec.isNear(
-                                RotationsPerSecond.ofBaseUnits(0), IndexerConstants.RESET_TOLERANCE)),
+                            RotationsPerSecond.ofBaseUnits(0), IndexerConstants.RESET_TOLERANCE)),
             Commands.runOnce(
                 () -> {
                   io.indexerOpenLoop(Volts.of(0));

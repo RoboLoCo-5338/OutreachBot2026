@@ -18,13 +18,17 @@ public final class IndexerConstants {
   public static final Current INDEXER_MOTOR_CURRENT_LIMIT = Amps.of(60);
   public static final double GEARING = 2 * Math.PI;
 
-  public static final AngularVelocity INDEXER_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
-  public static final AngularVelocity INDEXER_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
+  public static final AngularVelocity INDEXER_REVERSE_VELOCITY =
+      RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
+  public static final AngularVelocity INDEXER_FORWARD_VELOCITY =
+      RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
   public static final AngularVelocity INDEXER_NO_VELOCITY = RotationsPerSecond.of(0.0);
 
-  public static final AngularVelocity RESET_TOLERANCE = RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
+  public static final AngularVelocity RESET_TOLERANCE =
+      RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
 
   public static final class IndexerSimConstants {
-    public static final MomentOfInertia INDEXER_MOI = PoundSquareInches.of(0.729044); // TODO: TUNE VALUES
+    public static final MomentOfInertia INDEXER_MOI =
+        PoundSquareInches.of(0.729044); // TODO: TUNE VALUES
   }
 }

@@ -110,8 +110,7 @@ public class Arm extends SubsystemBase implements SysIdSubsystem {
                         inputs1.armVelocityRadPerSec.isNear(
                                 RotationsPerSecond.ofBaseUnits(0), ArmConstants.RESET_TOLERANCE)
                             && inputs2.armVelocityRadPerSec.isNear(
-                                RotationsPerSecond.ofBaseUnits(0),
-                                ArmConstants.RESET_TOLERANCE)),
+                                RotationsPerSecond.ofBaseUnits(0), ArmConstants.RESET_TOLERANCE)),
             Commands.runOnce(
                 () -> {
                   io1.armOpenLoop(Volts.of(0));

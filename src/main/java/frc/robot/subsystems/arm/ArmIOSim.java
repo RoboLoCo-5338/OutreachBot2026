@@ -52,12 +52,9 @@ public class ArmIOSim extends ArmIOSpark implements SimMechanism {
     encoderSim.iterate(armPhysicsSim.getAngularVelocityRPM(), 0.02);
 
     encoderSim.setVelocity(armPhysicsSim.getAngularVelocityRPM());
-    Logger.recordOutput(
-        "Arm" + armNum + "/ArmVelocity", armPhysicsSim.getAngularVelocityRPM());
-    Logger.recordOutput(
-        "Arm" + armNum + "/ArmAppliedVolts", armPhysicsSim.getInputVoltage());
-    Logger.recordOutput(
-        "Arm" + armNum + "/ArmCurrentAmps", armPhysicsSim.getCurrentDrawAmps());
+    Logger.recordOutput("Arm" + armNum + "/ArmVelocity", armPhysicsSim.getAngularVelocityRPM());
+    Logger.recordOutput("Arm" + armNum + "/ArmAppliedVolts", armPhysicsSim.getInputVoltage());
+    Logger.recordOutput("Arm" + armNum + "/ArmCurrentAmps", armPhysicsSim.getCurrentDrawAmps());
 
     super.updateInputs(inputs);
   }

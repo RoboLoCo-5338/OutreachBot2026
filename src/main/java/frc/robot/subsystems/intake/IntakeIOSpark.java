@@ -2,21 +2,18 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-// import au.grapplerobotics.LaserCan;
-// import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -37,8 +34,7 @@ public class IntakeIOSpark extends IntakeIO {
 
   SparkMax intakeMotor;
   SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(
-          IntakeConstants.INTAKE_MOTOR_KS, IntakeConstants.INTAKE_MOTOR_KV);
+      new SimpleMotorFeedforward(IntakeConstants.INTAKE_MOTOR_KS, IntakeConstants.INTAKE_MOTOR_KV);
   // LaserCan laserCan = new LaserCan(IntakeConstants.LASERCAN_ID);
   private final LoggedTunableNumber kP =
       new LoggedTunableNumber("Intake kP", IntakeConstants.INTAKE_MOTOR_VELOCITY_KP);
@@ -50,6 +46,7 @@ public class IntakeIOSpark extends IntakeIO {
       new LoggedTunableNumber("Intake kV", IntakeConstants.INTAKE_MOTOR_KV);
   private final LoggedTunableNumber kS =
       new LoggedTunableNumber("Intake kS", IntakeConstants.INTAKE_MOTOR_KS);
+
   public IntakeIOSpark(int intakeNum) {
     intakeMotor = new SparkMax(IntakeConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
     intakeEncoder = intakeMotor.getEncoder();
@@ -59,9 +56,7 @@ public class IntakeIOSpark extends IntakeIO {
         5,
         () ->
             intakeMotor.configure(
-                getIntakeConfig(),
-                ResetMode.kResetSafeParameters,
-                PersistMode.kPersistParameters));
+                getIntakeConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters));
     intakeClosedLoopController = intakeMotor.getClosedLoopController();
 
     // try {

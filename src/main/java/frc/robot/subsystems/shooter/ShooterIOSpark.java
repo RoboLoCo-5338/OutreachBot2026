@@ -2,23 +2,18 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Millimeters;
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-// import au.grapplerobotics.LaserCan;
-// import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -116,7 +111,11 @@ public class ShooterIOSpark extends ShooterIO {
         .smartCurrentLimit((int) (ShooterConstants.SHOOTER_MOTOR_CURRENT_LIMIT.in(Amps)))
         .voltageCompensation(12.0);
 
-    shooterConfig.closedLoop.feedForward.kS(ShooterConstants.SHOOTER_MOTOR_KS).kV(ShooterConstants.SHOOTER_MOTOR_KV);
+    shooterConfig
+        .closedLoop
+        .feedForward
+        .kS(ShooterConstants.SHOOTER_MOTOR_KS)
+        .kV(ShooterConstants.SHOOTER_MOTOR_KV);
 
     shooterConfig.encoder.velocityConversionFactor(ShooterConstants.GEARING / 60);
     shooterConfig.encoder.positionConversionFactor(ShooterConstants.GEARING);
@@ -181,9 +180,7 @@ public class ShooterIOSpark extends ShooterIO {
   @Override
   public void setShooterVelocity(AngularVelocity velocity) {
     shooterClosedLoopController.setReference(
-        velocity.in(RadiansPerSecond),
-        ControlType.kVelocity,
-        ClosedLoopSlot.kSlot0);
+        velocity.in(RadiansPerSecond), ControlType.kVelocity, ClosedLoopSlot.kSlot0);
   }
 
   public void follow(ShooterIOSpark leader, boolean inverted) {
