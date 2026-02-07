@@ -13,9 +13,21 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.subsystems.vision.VisionConstants.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
+import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
 import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,16 +37,43 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.vision.*;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmConstants;
+import frc.robot.subsystems.arm.ArmIO;
+import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.arm.ArmIOSpark;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.GyroIOSim;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.IndexerConstants;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIOSim;
+import frc.robot.subsystems.indexer.IndexerIOSpark;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSpark;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSpark;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -45,7 +84,12 @@ public class RobotContainer {
     // Subsystems
     private final Drive drive;
     private final Vision vision;
+    private final Shooter shooter;
     private SwerveDriveSimulation driveSimulation = null;
+    private final Intake intake;
+    private final Indexer indexer;
+    private final Arm arm;
+    
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -55,7 +99,7 @@ public class RobotContainer {
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
-        switch (Constants.currentMode) {
+        switch (Constants.CURRENT_MODE) {
             case REAL:
                 // Real robot, instantiate hardware IO implementations
                 drive = new Drive(
@@ -71,6 +115,10 @@ public class RobotContainer {
                         new VisionIOLimelight(VisionConstants.camera0Name, drive::getRotation),
                         new VisionIOLimelight(VisionConstants.camera1Name, drive::getRotation));
 
+                shooter = new Shooter(new ShooterIOSpark(1), new ShooterIOSpark(2));
+                arm = new Arm(new ArmIOSpark(1), new ArmIOSpark(2));
+                indexer = new Indexer(new IndexerIOSpark(1));
+                intake = new Intake(new IntakeIOSpark(1));
                 break;
             case SIM:
                 // create a maple-sim swerve drive simulation instance
@@ -94,6 +142,10 @@ public class RobotContainer {
                         new VisionIOPhotonVisionSim(
                                 camera1Name, robotToCamera1, driveSimulation::getSimulatedDriveTrainPose));
 
+                shooter = new Shooter(new ShooterIOSim(1), new ShooterIOSim(2));
+                intake = new Intake(new IntakeIOSim(1));
+                indexer = new Indexer(new IndexerIOSim(1));
+                arm = new Arm(new ArmIOSim(1), new ArmIOSim(2));
                 break;
             default:
                 // Replayed robot, disable IO implementations
@@ -106,6 +158,10 @@ public class RobotContainer {
                         (pose) -> {});
                 vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
 
+                shooter = new Shooter(new ShooterIO(), new ShooterIO());
+                intake = new Intake(new IntakeIO());
+                indexer = new Indexer(new IndexerIO());
+                arm = new Arm(new ArmIO(), new ArmIO());
                 break;
         }
 
@@ -122,6 +178,7 @@ public class RobotContainer {
         autoChooser.addOption("Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption("Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+        shooter.addRoutinesToChooser(autoChooser);
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -137,6 +194,7 @@ public class RobotContainer {
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
         // Lock to 0° when A button is held
+        
         controller
                 .a()
                 .whileTrue(DriveCommands.joystickDriveAtAngle(
@@ -146,7 +204,7 @@ public class RobotContainer {
         controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
         // Reset gyro / odometry
-        final Runnable resetGyro = Constants.currentMode == Constants.Mode.SIM
+        final Runnable resetGyro = Constants.CURRENT_MODE == Constants.Mode.SIM
                 ? () -> drive.resetOdometry(
                         driveSimulation
                                 .getSimulatedDriveTrainPose()) // reset odometry to actual robot pose during simulation
@@ -154,9 +212,10 @@ public class RobotContainer {
                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())); // zero gyro
         controller.start().onTrue(Commands.runOnce(resetGyro, drive).ignoringDisable(true));
 
+        controller.b().whileTrue(shooter.setShooterVelocity(() -> RadiansPerSecond.of(1))).whileFalse(shooter.setShooterVelocity(() -> RadiansPerSecond.of(0)));
         // Example Coral Placement Code
         // TODO: delete these code for your own project
-        if (Constants.currentMode == Constants.Mode.SIM) {
+        if (Constants.CURRENT_MODE == Constants.Mode.SIM) {
             // L4 placement
             controller.y().onTrue(Commands.runOnce(() -> SimulatedArena.getInstance()
                     .addGamePieceProjectile(new ReefscapeCoralOnFly(
@@ -177,33 +236,64 @@ public class RobotContainer {
                             Meters.of(1.35),
                             MetersPerSecond.of(1.5),
                             Degrees.of(-60)))));
-        }
+        
     }
-
+    controller
+                .rightTrigger()
+                .whileTrue(
+                        new ParallelCommandGroup(
+                                intake.intakeOpenLoop(IntakeConstants.INTAKE_IN_VOLTAGE),
+                                indexer.indexerOpenLoop(IndexerConstants.INDEXER_IN_VOLTAGE)
+                        )
+                );
+            controller
+                .leftTrigger()
+                .whileTrue(
+                        new ParallelCommandGroup(
+                                intake.intakeOpenLoop(IntakeConstants.INTAKE_OUT_VOLTAGE),
+                                indexer.indexerOpenLoop(IndexerConstants.INDEXER_OUT_VOLTAGE)
+                        )
+                );
+             controller
+                .leftBumper()
+                .whileTrue(
+                        shooter.shooterOpenLoop(ShooterConstants.SHOOTER_OUT_VOLTAGE)
+                );
+        controller
+                .rightBumper()
+                .whileTrue(
+                        shooter.shooterOpenLoop(ShooterConstants.SHOOTER_IN_VOLTAGE)
+                );
+             
+             arm.setDefaultCommand(
+                arm.setArmVelocity(() -> ArmConstants.ARM_FORWARD_VELOCITY.times(controller.getRightY())
+                )
+            );
+        }
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand() {
-        return autoChooser.get();
-    }
+        public Command getAutonomousCommand() {
+                return autoChooser.get();
+        }
 
-    public void resetSimulationField() {
-        if (Constants.currentMode != Constants.Mode.SIM) return;
+        public void resetSimulationField() {
+                if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
 
-        drive.resetOdometry(new Pose2d(3, 3, new Rotation2d()));
-        SimulatedArena.getInstance().resetFieldForAuto();
-    }
+                drive.resetOdometry(new Pose2d(3, 3, new Rotation2d()));
+                SimulatedArena.getInstance().resetFieldForAuto();
+        }
 
-    public void updateSimulation() {
-        if (Constants.currentMode != Constants.Mode.SIM) return;
+        public void updateSimulation() {
+                if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
 
-        SimulatedArena.getInstance().simulationPeriodic();
-        Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
-        Logger.recordOutput(
-                "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-        Logger.recordOutput(
-                "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-    }
+                SimulatedArena.getInstance().simulationPeriodic();
+                Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
+                Logger.recordOutput(
+                        "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+                Logger.recordOutput(
+                        "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+                }
 }
