@@ -13,8 +13,21 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.subsystems.vision.VisionConstants.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.subsystems.vision.VisionConstants.camera0Name;
+import static frc.robot.subsystems.vision.VisionConstants.camera1Name;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera0;
+import static frc.robot.subsystems.vision.VisionConstants.robotToCamera1;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -27,25 +40,39 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterConstants;
-import frc.robot.subsystems.shooter.ShooterIO;
-import frc.robot.subsystems.shooter.ShooterIOSim;
-import frc.robot.subsystems.shooter.ShooterIOSpark;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmConstants;
+import frc.robot.subsystems.arm.ArmIO;
+import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.arm.ArmIOSpark;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.GyroIOSim;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOSpark;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.IndexerConstants;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIOSim;
+import frc.robot.subsystems.indexer.IndexerIOSpark;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOSpark;
-import frc.robot.subsystems.arm.*;
-import frc.robot.subsystems.indexer.*;
-import frc.robot.subsystems.vision.*;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSpark;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -88,6 +115,9 @@ public class RobotContainer {
                         new VisionIOLimelight(VisionConstants.camera1Name, drive::getRotation));
 
                 shooter = new Shooter(new ShooterIOSpark(1), new ShooterIOSpark(2));
+                arm = new Arm(new ArmIOSpark(1), new ArmIOSpark(2));
+                indexer = new Indexer(new IndexerIOSpark(1));
+                intake = new Intake(new IntakeIOSpark(1));
                 break;
             case SIM:
                 // create a maple-sim swerve drive simulation instance
@@ -208,31 +238,27 @@ public class RobotContainer {
             controller
                 .rightTrigger()
                 .whileTrue(
-                        shooter.setShooterVelocity(
-                                ShooterConstants.SHOOTER_FORWARD_VELOCITY
-                        )
+                        shooter.setShooterVelocity(() -> ShooterConstants.SHOOTER_FORWARD_VELOCITY)
                 );
             controller
                 .leftTrigger()
                 .whileTrue(
-                        intake.setIntakeVelocity(
-                                IntakeConstants.INTAKE_FORWARD_VELOCITY
-                        )
+                        intake.setIntakeVelocity(() -> IntakeConstants.INTAKE_FORWARD_VELOCITY)
+                )
+                .onFalse(
+                        intake.setIntakeVelocity(() -> IntakeConstants.INTAKE_NO_VELOCITY)
                 );
              controller
-        .rightBumper()
-        .whileTrue(
-            indexer.setIndexerVelocity(
-                () -> IndexerConstants.INDEXER_INTAKE_VELOCITY))
-        .onFalse(indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_NO_VELOCITY));
-        controller
-        .leftBumper()
-        .whileTrue(
-            indexer.setIndexerVelocity(
-                () -> IndexerConstants.INDEXER_OUTTAKE_VELOCITY)) 
-        .onFalse(indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_NO_VELOCITY));  
+                .leftBumper()
+                .whileTrue(
+                        indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_FORWARD_VELOCITY))
+                .onFalse(indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_NO_VELOCITY));
+             
+             arm.setDefaultCommand(
+                arm.setArmVelocity(() -> ArmConstants.ARM_FORWARD_VELOCITY.times(controller.getRightY())
+                )
+            );
         }
-
     }
 
     /**
@@ -240,25 +266,25 @@ public class RobotContainer {
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand() {
-        return autoChooser.get();
-    }
+        public Command getAutonomousCommand() {
+                return autoChooser.get();
+        }
 
-    public void resetSimulationField() {
-        if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
+        public void resetSimulationField() {
+                if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
 
-        drive.resetOdometry(new Pose2d(3, 3, new Rotation2d()));
-        SimulatedArena.getInstance().resetFieldForAuto();
-    }
+                drive.resetOdometry(new Pose2d(3, 3, new Rotation2d()));
+                SimulatedArena.getInstance().resetFieldForAuto();
+        }
 
-    public void updateSimulation() {
-        if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
+        public void updateSimulation() {
+                if (Constants.CURRENT_MODE != Constants.Mode.SIM) return;
 
-        SimulatedArena.getInstance().simulationPeriodic();
-        Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
-        Logger.recordOutput(
-                "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
-        Logger.recordOutput(
-                "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-    }
+                SimulatedArena.getInstance().simulationPeriodic();
+                Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
+                Logger.recordOutput(
+                        "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+                Logger.recordOutput(
+                        "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+                }
 }
