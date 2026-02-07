@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -55,11 +56,15 @@ public class DriveCommands {
           0.0,
           ANGLE_KD,
           new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+  private static ProfiledPIDController otherAngleController =
+      new ProfiledPIDController(
+          ANGLE_KP,
+          0.0,
+          ANGLE_KD,
+          new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
 
-  {
-    {
-      angleController.enableContinuousInput(-Math.PI, Math.PI);
-    }
+  static {
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   private static Rotation2d targetAngle = Rotation2d.fromRadians(0);
@@ -98,12 +103,16 @@ public class DriveCommands {
           double omegaUncontrolled = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
           targetAngle =
-              targetAngle.plus(
-                  Rotation2d.fromRadians(
-                      omegaUncontrolled * drive.getMaxAngularSpeedRadPerSec() * 0.02));
+              Rotation2d.fromRadians(
+                  targetAngle.getRadians()
+                      + omegaUncontrolled * drive.getMaxAngularSpeedRadPerSec() * 0.02);
+          Logger.recordOutput("yaw position rads", drive.gyroInputs.yawPosition.getRadians());
+          Logger.recordOutput("target angle", targetAngle.getRadians());
+          Logger.recordOutput("error", angleController.getPositionError());
 
           double omegaControlled =
-              angleController.calculate(drive.getRotation().getRadians(), targetAngle.getRadians());
+              otherAngleController.calculate(
+                  drive.gyroInputs.yawPosition.getRadians(), targetAngle.getRadians());
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
@@ -304,7 +313,7 @@ public class DriveCommands {
   }
 
   public static void resetAngle() {
-        targetAngle = new Rotation2d();
+    targetAngle = new Rotation2d();
   }
 
   private static class WheelRadiusCharacterizationState {

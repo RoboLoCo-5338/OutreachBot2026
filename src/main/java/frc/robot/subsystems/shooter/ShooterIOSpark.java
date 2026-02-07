@@ -127,7 +127,6 @@ public class ShooterIOSpark extends ShooterIO {
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
-    System.out.println(shooterEncoder.getVelocity());
     sparkUtil.sparkStickyFault = false;
     sparkUtil.ifOk(
         shooterMotor,
