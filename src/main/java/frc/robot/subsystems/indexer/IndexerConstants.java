@@ -2,11 +2,13 @@ package frc.robot.subsystems.indexer;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.PoundSquareInches;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 
 public final class IndexerConstants {
   public static final int INDEXER_MOTOR_ID = 16;
@@ -21,6 +23,8 @@ public final class IndexerConstants {
   public static final AngularVelocity INDEXER_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
   public static final AngularVelocity INDEXER_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
   public static final AngularVelocity INDEXER_NO_VELOCITY = RotationsPerSecond.of(0.0);
+  public static final Voltage INDEXER_IN_VOLTAGE = Volts.of(-2.16);
+  public static final Voltage INDEXER_OUT_VOLTAGE = Volts.of(3.6);
 
   public static final AngularVelocity RESET_TOLERANCE = RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
 

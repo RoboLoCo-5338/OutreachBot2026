@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,6 +59,14 @@ public class Indexer extends SubsystemBase implements SysIdSubsystem.SysIdSingle
    * @param velocity The velocity to set the intake to in degrees per second.
    * @return A command that sets the intake to the given velocity.
    */
+  public Command indexerOpenLoop(Voltage voltage) {
+    return new InstantCommand(
+            () -> {
+              io.indexerOpenLoop(voltage);
+            },
+            this)
+        .withName("Indexer Open Loop");
+  }
   public Command setIndexerVelocity(Supplier<AngularVelocity> velocity) {
     return new InstantCommand(
             () -> {

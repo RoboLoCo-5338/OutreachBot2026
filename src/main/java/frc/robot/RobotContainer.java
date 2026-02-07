@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -144,7 +145,7 @@ public class RobotContainer {
                 shooter = new Shooter(new ShooterIOSim(1), new ShooterIOSim(2));
                 intake = new Intake(new IntakeIOSim(1));
                 indexer = new Indexer(new IndexerIOSim(1));
-                arm = new Arm(new ArmIOSim(1));
+                arm = new Arm(new ArmIOSim(1), new ArmIOSim(2));
                 break;
             default:
                 // Replayed robot, disable IO implementations
@@ -240,21 +241,29 @@ public class RobotContainer {
     controller
                 .rightTrigger()
                 .whileTrue(
-                        shooter.setShooterVelocity(() -> ShooterConstants.SHOOTER_FORWARD_VELOCITY)
+                        new ParallelCommandGroup(
+                                intake.intakeOpenLoop(IntakeConstants.INTAKE_IN_VOLTAGE),
+                                indexer.indexerOpenLoop(IndexerConstants.INDEXER_IN_VOLTAGE)
+                        )
                 );
             controller
                 .leftTrigger()
                 .whileTrue(
-                        intake.setIntakeVelocity(() -> IntakeConstants.INTAKE_FORWARD_VELOCITY)
-                )
-                .onFalse(
-                        intake.setIntakeVelocity(() -> IntakeConstants.INTAKE_NO_VELOCITY)
+                        new ParallelCommandGroup(
+                                intake.intakeOpenLoop(IntakeConstants.INTAKE_OUT_VOLTAGE),
+                                indexer.indexerOpenLoop(IndexerConstants.INDEXER_OUT_VOLTAGE)
+                        )
                 );
              controller
                 .leftBumper()
                 .whileTrue(
-                        indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_FORWARD_VELOCITY))
-                .onFalse(indexer.setIndexerVelocity(() -> IndexerConstants.INDEXER_NO_VELOCITY));
+                        shooter.shooterOpenLoop(ShooterConstants.SHOOTER_OUT_VOLTAGE)
+                );
+        controller
+                .rightBumper()
+                .whileTrue(
+                        shooter.shooterOpenLoop(ShooterConstants.SHOOTER_IN_VOLTAGE)
+                );
              
              arm.setDefaultCommand(
                 arm.setArmVelocity(() -> ArmConstants.ARM_FORWARD_VELOCITY.times(controller.getRightY())

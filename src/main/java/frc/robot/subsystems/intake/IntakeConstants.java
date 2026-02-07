@@ -2,11 +2,13 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.PoundSquareInches;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 
 public final class IntakeConstants {
   public static final int INTAKE_MOTOR_ID = 13;
@@ -21,6 +23,8 @@ public final class IntakeConstants {
   public static final AngularVelocity INTAKE_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
   public static final AngularVelocity INTAKE_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
   public static final AngularVelocity INTAKE_NO_VELOCITY = RotationsPerSecond.of(0.0);
+  public static final Voltage INTAKE_IN_VOLTAGE = Volts.of(-9.6);
+  public static final Voltage INTAKE_OUT_VOLTAGE = Volts.of(7.2);
 
   public static final AngularVelocity RESET_TOLERANCE = RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
 

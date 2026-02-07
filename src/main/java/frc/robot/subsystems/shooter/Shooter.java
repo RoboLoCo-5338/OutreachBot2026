@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,6 +76,15 @@ public class Shooter extends SubsystemBase implements SysIdSubsystem {
    * @param velocity The velocity to set the shooter to in degrees per second.
    * @return A command that sets the shooter to the given velocity.
    */
+  public Command shooterOpenLoop(Voltage voltage) {
+    return new InstantCommand(
+            () -> {
+              io1.shooterOpenLoop(voltage);
+              io2.shooterOpenLoop(voltage);
+            },
+            this)
+        .withName("Shooter Open Loop");
+  }
   public Command setShooterVelocity(Supplier<AngularVelocity> velocity) {
     return new InstantCommand(
             () -> {

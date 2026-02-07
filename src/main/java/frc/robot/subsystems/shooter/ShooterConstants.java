@@ -2,11 +2,13 @@ package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.PoundSquareInches;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 
 public final class ShooterConstants {
   public static final int SHOOTER_MOTOR_1_ID = 11;
@@ -22,6 +24,8 @@ public final class ShooterConstants {
   public static final AngularVelocity SHOOTER_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
   public static final AngularVelocity SHOOTER_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
   public static final AngularVelocity SHOOTER_NO_VELOCITY = RotationsPerSecond.of(0.0);
+  public static final Voltage SHOOTER_IN_VOLTAGE = Volts.of(10.8);
+  public static final Voltage SHOOTER_OUT_VOLTAGE = Volts.of(-3.6);
 
   public static final AngularVelocity RESET_TOLERANCE = RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
 

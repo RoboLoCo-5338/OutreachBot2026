@@ -2,11 +2,13 @@ package frc.robot.subsystems.arm;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.PoundSquareInches;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 
 public final class ArmConstants {
   public static final int ARM_MOTOR_1_ID = 15;
@@ -22,6 +24,7 @@ public final class ArmConstants {
   public static final AngularVelocity ARM_REVERSE_VELOCITY = RotationsPerSecond.of(-1.0); // TODO: TUNE VALUES
   public static final AngularVelocity ARM_FORWARD_VELOCITY = RotationsPerSecond.of(1.0); // TODO: TUNE VALUES
   public static final AngularVelocity ARM_NO_VELOCITY = RotationsPerSecond.of(0.0);
+  public static final Voltage ARM_VOLTAGE = Volts.of(4.8); // TODO: TUNE VALUES
 
   public static final AngularVelocity RESET_TOLERANCE = RotationsPerSecond.of(0.05); // TODO: TUNE VALUES
 
