@@ -235,7 +235,9 @@ public class RobotContainer {
                             Meters.of(1.35),
                             MetersPerSecond.of(1.5),
                             Degrees.of(-60)))));
-            controller
+        
+    }
+    controller
                 .rightTrigger()
                 .whileTrue(
                         shooter.setShooterVelocity(() -> ShooterConstants.SHOOTER_FORWARD_VELOCITY)
@@ -259,8 +261,6 @@ public class RobotContainer {
                 )
             );
         }
-    }
-
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
