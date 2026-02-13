@@ -144,6 +144,7 @@ public class ModuleIOSpark implements ModuleIO {
                 .positionConversionFactor(turnEncoderPositionFactor)
                 .velocityConversionFactor(turnEncoderVelocityFactor)
                 .averageDepth(2);
+                // .zeroOffset(DriveConstants.moduleOffsets[module]);
         turnConfig
                 .closedLoop
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)

@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -114,8 +116,10 @@ public class ShooterIOSpark extends ShooterIO {
         .smartCurrentLimit((int) (ShooterConstants.SHOOTER_MOTOR_CURRENT_LIMIT.in(Amps)))
         .voltageCompensation(12.0);
 
-    shooterConfig.absoluteEncoder.velocityConversionFactor(ShooterConstants.GEARING);
-    shooterConfig.absoluteEncoder.positionConversionFactor(ShooterConstants.GEARING);
+    shooterConfig.closedLoop.feedForward.kS(ShooterConstants.SHOOTER_MOTOR_KS).kV(ShooterConstants.SHOOTER_MOTOR_KV);
+
+    shooterConfig.encoder.velocityConversionFactor(ShooterConstants.GEARING / 60);
+    shooterConfig.encoder.positionConversionFactor(ShooterConstants.GEARING);
 
     shooterConfig.idleMode(IdleMode.kCoast);
 
@@ -124,16 +128,16 @@ public class ShooterIOSpark extends ShooterIO {
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
+    System.out.println(shooterEncoder.getVelocity());
     sparkUtil.sparkStickyFault = false;
-
     sparkUtil.ifOk(
         shooterMotor,
         shooterEncoder::getPosition,
-        (value) -> inputs.shooterPositionRads = Rotations.of(value));
+        (value) -> inputs.shooterPositionRads = Radians.of(value));
     sparkUtil.ifOk(
         shooterMotor,
         shooterEncoder::getVelocity,
-        (value) -> inputs.shooterVelocityRadPerSec = RPM.of(value));
+        (value) -> inputs.shooterVelocityRadPerSec = RadiansPerSecond.of(value));
     sparkUtil.ifOk(
         shooterMotor,
         new DoubleSupplier[] {shooterMotor::getAppliedOutput, shooterMotor::getBusVoltage},
@@ -177,10 +181,9 @@ public class ShooterIOSpark extends ShooterIO {
   @Override
   public void setShooterVelocity(AngularVelocity velocity) {
     shooterClosedLoopController.setReference(
-        velocity.in(RPM),
+        velocity.in(RadiansPerSecond),
         ControlType.kVelocity,
-        ClosedLoopSlot.kSlot0,
-        feedforward.calculate(velocity.in(RPM)));
+        ClosedLoopSlot.kSlot0);
   }
 
   public void follow(ShooterIOSpark leader, boolean inverted) {
