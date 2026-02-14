@@ -32,16 +32,16 @@ public class VisionConstants {
   // things so dont ignore it
   public static Transform3d robotToCamera0 =
       new Transform3d(
-          Units.inchesToMeters(-1),
-          -Units.inchesToMeters(-1),
-          Units.inchesToMeters(-1),
-          new Rotation3d(0.0, -Units.degreesToRadians(-1), -1));
+          Units.inchesToMeters(10.5),
+          -Units.inchesToMeters(15.55),
+          Units.inchesToMeters(8.5),
+          new Rotation3d(0.0, -Units.degreesToRadians(16.0), 0.0));
   public static Transform3d robotToCamera1 =
       new Transform3d(
-          Units.inchesToMeters(-1),
-          Units.inchesToMeters(-1),
-          Units.inchesToMeters(-1),
-          new Rotation3d(-1, Units.degreesToRadians(-1), -1));
+          Units.inchesToMeters(18.5),
+          Units.inchesToMeters(6.30),
+          Units.inchesToMeters(12.5),
+          new Rotation3d(0.0, Units.degreesToRadians(30.0), 0.0));
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
