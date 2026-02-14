@@ -4,6 +4,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
+
+import java.io.File;
 import java.io.IOException;
 
 public class VisionConstants {
@@ -13,8 +16,10 @@ public class VisionConstants {
   static {
     try {
       aprilTagLayout =
-          AprilTagFieldLayout.loadFromResource(
-              "/edu/wpi/first/apriltag/2026-rebuilt-andymark.json");
+          new AprilTagFieldLayout(
+              // once we have the april tag field layout it can be added here in place of
+              // placeholder.json
+              new File(Filesystem.getDeployDirectory(), "field_map_feb_14_15_50_59.json").toPath());
     } catch (IOException e) {
       throw new RuntimeException("Failed to load AprilTag layout", e);
     }
