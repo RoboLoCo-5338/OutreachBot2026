@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.questnav.QuestNav.QuestNavConsumer;
 import frc.robot.subsystems.vision.odometry.VisionOdometry;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -52,7 +53,7 @@ import java.util.function.Consumer;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class Drive extends SubsystemBase implements VisionOdometry.VisionConsumer {
+public class Drive extends SubsystemBase implements VisionOdometry.VisionConsumer, QuestNavConsumer {
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -294,10 +295,10 @@ public class Drive extends SubsystemBase implements VisionOdometry.VisionConsume
         poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
     }
 
-    /** Adds a new timestamped vision measurement. */
+    /** Adds a new timestamped vision/questnav measurement. */
     @Override
-    public void accept(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
-        poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    public void accept(Pose2d robotPoseMeters, double timestampSeconds, Matrix<N3, N1> measurementStdDevs) {
+        poseEstimator.addVisionMeasurement(robotPoseMeters, timestampSeconds, measurementStdDevs);
     }
 
     /** Returns the maximum linear speed in meters per sec. */
